@@ -1,34 +1,55 @@
-const trail = document.createElement('div');
-trail.classList.add('trail');
-document.body.appendChild(trail);
-
+const canvas = document.querySelector('.scratch-off');
+const ctx = canvas.getContext('2d');
 const hiddenText = document.querySelector('.hidden-text');
-const paragraph = hiddenText.querySelector('p');
-const words = paragraph.textContent.split(' ');
+const container = document.querySelector('.container');
+canvas.width = container.offsetWidth;
+canvas.height = container.offsetHeight;
 
-paragraph.innerHTML = ''; // Clear original content
+ctx.fillStyle = '#aaa';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-words.forEach(word => {
-    const span = document.createElement('span');
-    span.textContent = word;
-    paragraph.appendChild(span);
-    paragraph.innerHTML += ' ';
+ctx.globalCompositeOperation = 'destination-out';
+ctx.lineWidth = 30;
+ctx.lineCap = 'round';
+
+let scratching = false;
+
+canvas.addEventListener('mousedown', () => {
+    scratching = true;
 });
 
-const spans = paragraph.querySelectorAll('span');
+canvas.addEventListener('mouseup', () => {
+    scratching = false;
+});
 
-document.addEventListener('mousemove', (e) => {
-    trail.style.left = `${e.clientX - 25}px`;
-    trail.style.top = `${e.clientY - 25}px`;
+canvas.addEventListener('mousemove', (e) => {
+    if (!scratching) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    spans.forEach(span => {
-        const rect = span.getBoundingClientRect();
-        const inBounds =
-            e.clientX >= rect.left &&
-            e.clientX <= rect.right &&
-            e.clientY >= rect.top &&
-            e.clientY <= rect.bottom;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+});
 
-        span.style.color = inBounds ? '#fff' : 'transparent';
-    });
+canvas.addEventListener('touchstart', () => {
+    scratching = true;
+});
+
+canvas.addEventListener('touchend', () => {
+    scratching = false;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!scratching) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
 });
